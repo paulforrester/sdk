@@ -268,7 +268,7 @@ func (r *Client) SetDashboard(ctx context.Context, board Board, params SetDashbo
 // may be only loaded with HTTP API but not created or updated.
 //
 // Reflects POST /api/dashboards/db API call.
-func (r *Client) SetRawDashboard(ctx context.Context, raw []byte) (StatusMessage, error) {
+func (r *Client) SetRawDashboard(ctx context.Context, raw []byte, folderID int) (StatusMessage, error) {
 	var (
 		rawResp []byte
 		resp    StatusMessage
@@ -285,6 +285,9 @@ func (r *Client) SetRawDashboard(ctx context.Context, raw []byte) (StatusMessage
 	raw, _ = json.Marshal(plain)
 	buf.WriteString(`{"dashboard":`)
 	buf.Write(raw)
+	if folderID != 0 {
+		buf.WriteString(fmt.Sprintf(", \"folderId\": %d", folderID))
+	}
 	buf.WriteString(`, "overwrite": true}`)
 	if rawResp, code, err = r.post(ctx, "api/dashboards/db", nil, buf.Bytes()); err != nil {
 		return StatusMessage{}, err
